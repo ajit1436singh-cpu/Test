@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from urllib.parse import urljoin
 
 from behave import given, then, when
 from playwright.sync_api import expect
@@ -13,7 +14,7 @@ def step_open_application(context) -> None:
 
 @when('I navigate to "{path}"')
 def step_navigate_to(context, path: str) -> None:
-    target = path if path.startswith("http") else f"{context.base_url}/{path.lstrip('/') }"
+    target = urljoin(f"{context.base_url}/", path)
     context.page.goto(target, wait_until="domcontentloaded")
 
 
