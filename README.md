@@ -1,6 +1,6 @@
-# Python Playwright UI Automation
+# Python Playwright Behave BDD UI Automation
 
-A reusable Python UI automation starter project built with [Playwright](https://playwright.dev/python/) and [pytest](https://docs.pytest.org/). The target application is configured through `BASE_URL`, so the framework can be connected to any web application without changing the test runner.
+A reusable browser UI automation framework built with [Playwright for Python](https://playwright.dev/python/) and [Behave](https://behave.readthedocs.io/). Test scenarios are written in Gherkin, while step definitions use Playwright’s synchronous Python API.
 
 ## Requirements
 
@@ -19,47 +19,56 @@ python -m playwright install --with-deps chromium
 cp .env.example .env
 ```
 
-Set the application URL in `.env`:
+Configure the application under test in `.env`:
 
 ```dotenv
 BASE_URL=https://your-application.example.com
+HEADLESS=true
+PLAYWRIGHT_TIMEOUT_MS=10000
+IGNORE_HTTPS_ERRORS=false
 ```
 
-## Run the tests
+## Run the BDD suite
 
-Run the complete suite in headless mode:
+Run all scenarios:
 
 ```bash
-pytest
+behave
 ```
 
-Run only smoke tests:
+Run smoke scenarios only:
 
 ```bash
-pytest -m smoke
+behave --tags=smoke
 ```
 
-Run with a visible browser and slow motion while debugging:
+Run with a visible browser for debugging:
 
 ```bash
-PWDEBUG=1 pytest -m smoke
+HEADLESS=false behave --tags=smoke
 ```
 
-Generate an HTML report:
+Behave writes screenshots and HTML snapshots to `test-results/` when a scenario fails.
 
-```bash
-pytest --browser chromium --tracing retain-on-failure --video retain-on-failure --screenshot only-on-failure
+## Add a new scenario
+
+Add a Gherkin scenario to a feature file under `features/`:
+
+```gherkin
+Feature: Search
+
+  @regression
+  Scenario: Search returns matching results
+    Given I open the application
+    When I navigate to "/search"
+    Then I should see text "Search"
 ```
 
-## Adding application-specific coverage
-
-Add tests under `tests/`. Prefer accessible, stable locators such as `get_by_role`, `get_by_label`, and `get_by_test_id`. Replace the generic assertions in `tests/test_smoke.py` with assertions that describe the application’s real critical path.
-
-For authentication, use a dedicated non-production account and store secrets in environment variables or CI secrets. Do not commit credentials to the repository.
+Implement additional steps in `features/steps/`. Prefer accessible and stable locators such as roles, labels, and test IDs. Keep credentials out of source control; use environment variables or GitHub Actions secrets for authenticated flows.
 
 ## Continuous integration
 
-The GitHub Actions workflow in `.github/workflows/playwright.yml` installs Python, dependencies, Chromium, and runs the suite using the repository secret `BASE_URL`. Add that secret under **Settings → Secrets and variables → Actions** before relying on CI results.
+The workflow at `.github/workflows/playwright.yml` installs Python, Behave, Playwright, and Chromium, then runs `behave --tags=smoke`. Create a repository secret named `BASE_URL` under **Settings → Secrets and variables → Actions** before relying on the workflow.
 
 ## Project structure
 
@@ -67,10 +76,11 @@ The GitHub Actions workflow in `.github/workflows/playwright.yml` installs Pytho
 .
 ├── .env.example
 ├── .github/workflows/playwright.yml
-├── pytest.ini
+├── behave.ini
+├── features/
+│   ├── environment.py
+│   ├── smoke.feature
+│   └── steps/ui_steps.py
 ├── requirements.txt
-├── tests/
-│   ├── conftest.py
-│   └── test_smoke.py
 └── README.md
 ```

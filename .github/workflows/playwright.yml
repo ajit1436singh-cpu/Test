@@ -33,8 +33,8 @@ jobs:
       - name: Install Playwright browsers
         run: python -m playwright install --with-deps chromium
 
-      - name: Run smoke tests
-        run: pytest -m smoke --browser chromium --tracing retain-on-failure --video retain-on-failure --screenshot only-on-failure
+      - name: Run Behave BDD tests
+        run: behave --tags=smoke
 
       - name: Upload Playwright artifacts
         if: always()
