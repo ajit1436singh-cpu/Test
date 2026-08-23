@@ -84,3 +84,17 @@ The workflow at `.github/workflows/playwright.yml` installs Python, Behave, Play
 ├── requirements.txt
 └── README.md
 ```
+
+## Framework architecture
+
+The framework follows the requested layered structure. Gherkin scenarios live under `features/`, page objects under `pages/`, stable selectors under `locators/`, reusable browser and configuration utilities under `utilities/`, and runtime settings under `config/config.ini`. The Behave hooks create and close the browser per scenario and save a screenshot plus HTML snapshot under `test-results/` when a scenario fails.
+
+The default SauceDemo account is configured in `config/config.ini` for this public demo application. For another environment, override `BASE_URL`, `SAUCE_USERNAME`, and `SAUCE_PASSWORD` through `.env` or CI secrets. Real credentials must never be committed.
+
+The smoke suite can be executed with:
+
+```bash
+behave --tags=smoke
+```
+
+The current smoke test validates opening the site, logging in with the standard user, reaching the inventory page, and seeing the Sauce Labs Backpack product.

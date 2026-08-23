@@ -1,20 +1,21 @@
-from behave import given, then, when
-from playwright.sync_api import expect
+from __future__ import annotations
+
+from behave import then, when
 
 
 @when("I log in to SauceDemo as the standard user")
 def step_login_as_standard_user(context) -> None:
-    context.page.get_by_placeholder("Username").fill("standard_user")
-    context.page.get_by_placeholder("Password").fill("secret_sauce")
-    context.page.get_by_role("button", name="Login").click()
+    context.login_page.login(
+        str(context.settings["username"]),
+        str(context.settings["password"]),
+    )
 
 
 @then("the inventory page should be displayed")
 def step_inventory_page_should_be_displayed(context) -> None:
-    expect(context.page).to_have_url("https://www.saucedemo.com/inventory.html")
-    expect(context.page.get_by_text("Products", exact=True)).to_be_visible()
+    context.inventory_page.assert_displayed()
 
 
 @then('the inventory should contain the product "{product_name}"')
 def step_inventory_should_contain_product(context, product_name: str) -> None:
-    expect(context.page.get_by_text(product_name, exact=True)).to_be_visible()
+    context.inventory_page.assert_product_present(product_name)
